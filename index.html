@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>A4 Horizontal Flip — with Audio</title>
+<style>
+  * { box-sizing: border-box; }
+  html,body { height:100%; margin:0; }
+
+  body {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#111;
+    height:100vh;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* A4 container */
+  .flip-container{
+    aspect-ratio: 1 / 1.414; /* A4 */
+    height: 95vh;
+    width: auto;
+    position:relative;
+    perspective:2200px;
+    cursor:pointer;
+  }
+
+  .page{
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    overflow:hidden;
+    background-size:cover;
+    background-position:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.55);
+    transform: rotateY(180deg);
+    opacity:0;
+    transition: transform 900ms ease-in-out, opacity 900ms ease-in-out;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    will-change: transform, opacity;
+    pointer-events:none;
+  }
+
+  .page.active{
+    transform: rotateY(0deg);
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* set images */
+  .page.p1 { background-image: url('front.webp'); }
+  .page.p2 { background-image: url('inside.jpg'); }
+  .page.p3 { background-image: url('back.webp'); }
+
+  /* optional mute/unmute button */
+  .audio-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.3s;
+    z-index: 100;
+  }
+
+  .audio-toggle:hover {
+    background: rgba(255,255,255,0.25);
+  }
+</style>
+</head>
+<body>
+  <div class="flip-container" id="flip">
+    <div class="page p1 active"></div>
+    <div class="page p2"></div>
+    <div class="page p3"></div>
+  </div>
+
+  <!-- Background Audio -->
+  <audio id="bgAudio" loop>
+    <source src="audio.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="audio-toggle" id="audioToggle">🔇</div>
+
+<script>
+(function(){
+  const container = document.getElementById('flip');
+  const pages = Array.from(container.querySelectorAll('.page'));
+  const total = pages.length;
+  const audio = document.getElementById('bgAudio');
+  const toggle = document.getElementById('audioToggle');
+  let idx = 0; // current visible index
+
+  // Handle flipping
+  function setZIndices(outgoingIndex, incomingIndex) {
+    pages.forEach((p, i) => p.style.zIndex = 1);
+    pages[incomingIndex].style.zIndex = 3;
+    pages[outgoingIndex].style.zIndex = 2;
+  }
+
+  container.addEventListener('click', () => {
+    const outgoing = idx;
+    const incoming = (idx + 1) % total;
+
+    setZIndices(outgoing, incoming);
+    pages[incoming].classList.remove('active');
+    pages[incoming].offsetHeight;
+
+    pages[outgoing].classList.remove('active');
+    pages[incoming].classList.add('active');
+
+    setTimeout(() => {
+      pages.forEach((p, i) => p.style.zIndex = 1);
+      pages[incoming].style.zIndex = 3;
+      idx = incoming;
+    }, 950);
+
+    // Start audio on first click if needed (mobile autoplay workaround)
+    if (audio.paused) {
+      audio.play().catch(() => {});
+      toggle.textContent = "🔊";
+    }
+  });
+
+  // Audio toggle
+  toggle.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().then(() => {
+        toggle.textContent = "🔊";
+      });
+    } else {
+      audio.pause();
+      toggle.textContent = "🔇";
+    }
+  });
+
+  // Attempt autoplay on load (desktop will usually allow it)
+  window.addEventListener('load', () => {
+    audio.volume = 0.6;
+    audio.play().then(() => {
+      toggle.textContent = "🔊";
+    }).catch(() => {
+      toggle.textContent = "🔇";
+    });
+  });
+})();
+</script>
+</body>
+</html>
