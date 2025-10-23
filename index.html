@@ -17,16 +17,16 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
       font-family: "Poppins", sans-serif;
       color: #fff;
     }
 
-    /* Portrait aspect ratio: height > width (492 × 612) = 0.804 */
+    /* Portrait ratio (612 × 492 pt) */
     .flip-container {
-      height: 95vh;
-      width: calc(95vh * 0.804); /* keep aspect ratio */
+      height: 85vh; /* reduced from 95vh */
+      width: calc(85vh * 0.804); /* maintain aspect ratio */
       max-width: 95vw;
       position: relative;
       perspective: 2000px;
@@ -37,7 +37,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: contain; /* show full image */
+      background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
       backface-visibility: hidden;
@@ -65,19 +65,26 @@
     }
 
     .hint {
-      margin-top: 18px;
+      margin-top: 16px;
       text-align: center;
-      font-size: 0.95rem;
+      font-size: 1rem;
       opacity: 0.9;
       max-width: 90%;
       line-height: 1.4;
     }
 
+    /* Mobile adjustments */
     @media (max-width: 600px) {
       .flip-container {
-        height: 85vh;
-        width: calc(85vh * 0.804);
-        max-width: 95vw;
+        height: 75vh;
+        width: calc(75vh * 0.804);
+        max-width: 90vw;
+      }
+
+      .hint {
+        font-size: 0.9rem;
+        margin-top: 10px;
+        padding: 0 10px;
       }
     }
   </style>
@@ -110,7 +117,6 @@
       next.classList.remove('previous');
     });
 
-    // Fix autoplay restriction on some devices
     const audio = document.getElementById('bgAudio');
     document.body.addEventListener('click', () => {
       if (audio.paused) audio.play();
