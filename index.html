@@ -19,15 +19,15 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      font-family: 'Poppins', sans-serif;
+      font-family: "Poppins", sans-serif;
       color: #fff;
     }
 
-    /* Keep image ratio (612x492 ≈ 1.24) */
+    /* Portrait aspect ratio: height > width (492 × 612) = 0.804 */
     .flip-container {
-      aspect-ratio: 1.24 / 1;
-      width: 90vw;
-      max-height: 90vh;
+      height: 95vh;
+      width: calc(95vh * 0.804); /* keep aspect ratio */
+      max-width: 95vw;
       position: relative;
       perspective: 2000px;
       cursor: pointer;
@@ -37,7 +37,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: contain;
+      background-size: contain; /* show full image */
       background-repeat: no-repeat;
       background-position: center;
       backface-visibility: hidden;
@@ -48,7 +48,6 @@
       transition: opacity 1s ease-in-out, transform 1s ease-in-out;
     }
 
-    /* Your images */
     .page:nth-child(1) { background-image: url('front.webp'); }
     .page:nth-child(2) { background-image: url('inside.jpg'); }
     .page:nth-child(3) { background-image: url('back.webp'); }
@@ -65,12 +64,21 @@
       z-index: 1;
     }
 
-    /* Hint stays on top, separate from pages */
     .hint {
-      margin-top: 20px;
+      margin-top: 18px;
       text-align: center;
       font-size: 0.95rem;
       opacity: 0.9;
+      max-width: 90%;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 600px) {
+      .flip-container {
+        height: 85vh;
+        width: calc(85vh * 0.804);
+        max-width: 95vw;
+      }
     }
   </style>
 </head>
@@ -81,10 +89,8 @@
     <div class="page"></div>
   </div>
 
-  <!-- Hint text now OUTSIDE the flipping area -->
-  <div class="hint">This is our wedding IV. Tap or click to view the next page ❤️</div>
+  <div class="hint">This is our wedding IV. Tap to view the next page ❤️</div>
 
-  <!-- Optional background audio -->
   <audio id="bgAudio" src="audio.mp3" autoplay loop></audio>
 
   <script>
@@ -94,7 +100,7 @@
 
     flipContainer.addEventListener('click', () => {
       const current = pages[index];
-      index = (index + 1) % pages.length; // Loop continuously
+      index = (index + 1) % pages.length;
       const next = pages[index];
 
       current.classList.remove('active');
@@ -104,7 +110,7 @@
       next.classList.remove('previous');
     });
 
-    // Fix autoplay restriction
+    // Fix autoplay restriction on some devices
     const audio = document.getElementById('bgAudio');
     document.body.addEventListener('click', () => {
       if (audio.paused) audio.play();
